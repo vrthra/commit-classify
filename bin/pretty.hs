@@ -17,5 +17,20 @@ main = do
     inpStr <- inp
     let m = parseModuleFromFile inpStr
     putStrLn $ prettyPrint m
+    --putStrLn $ prettyPrintWithMode myMode m
+
+myMode = PPHsMode{
+      classIndent = 8,
+                  doIndent = 3,
+                  caseIndent = 4,
+                  letIndent = 4,
+                  whereIndent = 6,
+                  onsideIndent = 2,
+                  spacing = True,
+                  --layout = PPNoLayout,
+                  --layout = PPSemiColon,
+                  -- layout = PPInLine,
+                  linePragmas = False
+    }
 
 

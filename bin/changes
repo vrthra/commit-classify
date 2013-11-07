@@ -42,9 +42,11 @@ File.readlines('meta/repos.lst').sort_by{|x| x.downcase }.each do |pkg|
       File.open("#{x}.file", 'w') do |f|
         f.write a[:file]
       end
+      puts "#{x}.hs"
+      %x[./bin/pretty #{x}.file > #{x}.hs || cat #{x}.file > #{x}.hs]
       if i > 1
         File.open("#{y}/#{i-1}.diff", 'w') do |f|
-          f.write x(%[diff -B -d --ignore-all-space -b #{y}/#{i}.file #{y}/#{i-1}.file])
+          f.write x(%[diff -B -d --ignore-all-space -b #{y}/#{i}.hs #{y}/#{i-1}.hs])
         end
       end
     end
