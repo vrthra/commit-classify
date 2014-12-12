@@ -1,0 +1,19 @@
+#!/usr/bin/ruby
+
+stack = []
+ARGF.each do |line|
+  line.chomp!
+  case line
+  when /^ *$/
+    next
+  when /(.*)\\ *$/
+    stack << $1
+  else
+    if stack.length > 0
+      puts stack.join(' ') + ' ' + line
+      stack = []
+    else
+      puts line
+    end
+  end
+end

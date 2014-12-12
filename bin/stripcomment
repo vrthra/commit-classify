@@ -1,0 +1,31 @@
+#!/usr/bin/ruby
+switch = 1
+STDIN.each do |l|
+  l.chomp!
+  l.gsub!(/#.*/,'')
+  case l.strip
+  when /(.*)'''(.*)'''(.*)/
+    puts $1 + " '''DOC''' " + $3
+  when /(.*)"""(.*)"""(.*)/
+    puts $1 + ' """DOC""" ' + $3
+  when /(.*)'''(.*)$/
+    if switch == 1
+      puts $1
+      switch = 0
+    else
+      puts $2
+      switch = 1
+      next
+    end
+  when /(.*)"""(.*)$/
+    if switch == 1
+      puts $1
+      switch = 0
+    else
+      puts $2
+      switch = 1
+      next
+    end
+  end
+  puts l if switch == 1 && l !~ /^\s*$/
+end

@@ -1,0 +1,108 @@
+#!/usr/bin/ruby
+#!/scratch/gopinath/usr/bin/ruby
+$:.unshift File.expand_path("lib")
+require 'find'
+require 'differ'
+
+def diffit(file)
+  patches = parse_file(file)
+  #puts "#{file}.d"
+  File.open("#{file}.d", 'w') do |f|
+    patches.each do |p|
+      f.puts "############ #{p[:name]}"
+      ns =  p[:new].join("\n").gsub(/[(]/,' ( ').gsub(/[)]/,' ) ').gsub(/\[/,' [ ').gsub(/\]/,' ] ').gsub(/ +/,' ')
+      os =  p[:old].join("\n").gsub(/[(]/,' ( ').gsub(/[)]/,' ) ').gsub(/\[/,' [ ').gsub(/\]/,' ] ').gsub(/ +/,' ')
+      if ns.length < 1024 and os.length < 1024
+        d = Differ.diff_by_token(ns, os)
+        f.puts d.to_s.gsub(/\n/,"\t")
+        f.puts ""
+      end
+    end
+  end
+end
+
+def parse_file(difffile)
+  # split it by lines not starting with either < or > which are patches.
+  patches = []
+  patch = nil
+  File.readlines(difffile).each do |line|
+    begin
+    line.chomp!
+    case line
+    when /^<(.*)/
+      patch[:new] << $1
+    when /^>(.*)/
+      patch[:old] << $1
+    when /^---/
+    when /^\\ No newline at end of file/
+    else
+      patches << patch if patch
+      name = line
+      patch = {:name => name, :new => [], :old => []}
+    end
+    rescue
+    end
+  end
+  patches << patch if patch
+  patches
+end
+
+i = 0
+
+# Iterate thorugh each file in the current repository.
+# Then, for each file, do a git log, get the commits, and fetch the changes as
+# far back as possible.
+#
+def x(v)
+  #puts v
+  %x[#{v}]
+end
+i = 0
+File.readlines('meta/repos.lst').each do |pkg|
+#.sort_by{|x| x.downcase }
+  mylog = {}
+  pkg.strip!
+  pkgpath = "projects/#{pkg}"
+  next if File.directory?("changes/#{pkg}")
+  puts ">" + pkgpath
+  %x[mkdir -p changes/#{pkg}]
+  Dir.chdir(pkgpath) do
+    files = Dir.glob('**/*.py')
+    files.each do |file|
+      #next if file.strip !~ /src\/main\//
+      commits = x(%[git log --pretty=format:'%h' #{file}]).split().map(&:strip)
+      mylog[file.strip] = []
+      commits.each do |c|
+        mylog[file.strip] << {:sha => c, :patch => x(%[git show -p #{c} #{file}]), :file => x(%[git show #{c}:#{file}])}
+      end
+    end
+  end
+  mylog.each do |k,v|
+    #puts "changes/#{pkg}/#{k}"
+    %x[mkdir -p "changes/#{pkg}/#{k}"]
+    i = 0
+    v.each do |a|
+      i += 1
+      y = "changes/#{pkg}/#{k}"
+      x = "#{y}/#{i}"
+      File.open("#{x}.sha", 'w') do |f|
+        f.write a[:sha]
+      end
+      File.open("#{x}.patch", 'w') do |f|
+        f.write a[:patch]
+      end
+      File.open("#{x}.file", 'w') do |f|
+        f.write a[:file]
+      end
+      puts "#{x}.py"
+      %x[cat #{x}.file | ./bin/stripcomment | ./bin/joinlines | ./bin/stringlit > #{x}.py 2>/dev/null]
+      if i > 1
+        File.open("#{y}/#{i-1}.diff", 'w') do |f|
+          f.write x(%[diff -B -d --ignore-all-space -b #{y}/#{i}.py #{y}/#{i-1}.py])
+        end
+        diffit("#{y}/#{i-1}.diff")
+      end
+    end
+  end
+end
+
