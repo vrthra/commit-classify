@@ -17,7 +17,6 @@ acowley/vinyl-gl
 acw/eve
 acw/xml-helpers
 adamgundry/inch
-adamgundry/type-inference
 afcowie/http-streams
 afcowie/pipes-http
 afpug/euler
@@ -78,7 +77,6 @@ apiengine/network-api-support
 apiengine/pin
 archhaskell/archlinux
 archhaskell/cabal2arch
-archhaskell/habs
 arianvp/Haskeme
 aristidb/aws
 aristidb/http-types
@@ -249,7 +247,6 @@ cyga/real-world-haskell
 dag/all-about-monads
 dagit/haray
 dagit/nehe-tuts
-DanBurton/Blog
 DanBurton/sexy
 DanBurton/tardis
 danchoi/herbalizer
@@ -314,14 +311,12 @@ dragonfly-science/sqlconvert
 drbunsen/describe
 dreixel/generic-deriving
 dreixel/syb
-dropbox/image-search
 droundy/franchise
 droundy/iolaus-broken
 dsorokin/aivika
 dterei/GhciOnline
 dterei/GhcLlvmCodegen
 dterei/Hackager
-dterei/Research-Papers
 dterei/simple
 duairc/layers
 dwdyer/anorak
@@ -354,7 +349,6 @@ ekmett/either
 ekmett/ersatz
 ekmett/free
 ekmett/graphs
-ekmett/groupoids
 ekmett/indexed
 ekmett/kata
 ekmett/lens
@@ -369,7 +363,6 @@ ekmett/reducers
 ekmett/reflection
 ekmett/revisions
 ekmett/rounded
-ekmett/semigroupoid-extras
 ekmett/semigroupoids
 ekmett/semigroups
 ekmett/sparse
@@ -520,7 +513,6 @@ gregorycollins/homepage
 gregwebs/FileLocation.hs
 gregwebs/haskell-heroku
 gregwebs/haskell-sphinx-client
-gregwebs/haskell-xss-sanitize
 gregwebs/ParseHelp.hs
 gsdlab/clafer
 gsdlab/claferIG
@@ -631,7 +623,6 @@ jaspervdj/download-media-content
 jaspervdj/firefly
 jaspervdj/hakyll
 jaspervdj/hakyll-contrib
-jaspervdj/hakyll-examples
 jaspervdj/jaspervdj
 jaspervdj/number-six
 jaspervdj/planet-wars-haskell
@@ -769,8 +760,6 @@ kim/hdfs-haskell
 kim/leveldb-haskell
 kirel/detexify-hs-backend
 kizzx2/illustrated-haskell
-KMahoney/Dochi
-kmcallister/blog-misc
 kmcallister/math-compose
 kmcallister/safe-globals
 kmcallister/shqq
@@ -839,7 +828,6 @@ luqui/hothasktags
 luqui/vatican
 lykahb/groundhog
 lymar/hastache
-m4dc4p/cheatsheet
 m4dc4p/haskelldb
 Macha/Mbot
 magthe/cblrepo
@@ -867,7 +855,6 @@ MateVM/hs-boehmgc
 matshch/OTP
 mattfenwick/RelationalAlgebra
 MaxDaten/Darksiders-Resolution-Tool
-mboes/hmk
 mbrcknl/btree-gadt
 mbrubeck/compleat
 mbudde/jana
@@ -937,7 +924,6 @@ motus/haskell-zookeeper-client
 MrBones118/Project
 mrd/geocode-google
 mrd/haskell-quaternion
-MrElendig/dotfiles-alice
 mruegenberg/Delaunay
 msakai/cpl
 msakai/toysolver
@@ -1188,7 +1174,6 @@ snoyberg/foundation
 snoyberg/haskellers
 snoyberg/haskell-web-rosetta
 snoyberg/http-conduit
-snoyberg/http-enumerator
 snoyberg/keter
 snoyberg/markdown
 snoyberg/mime-mail
@@ -1196,7 +1181,6 @@ snoyberg/web-routes-quasi
 snoyberg/xml
 snoyberg/yackage
 snoyberg/yesoddocs
-snoyberg/yesod-fay
 snoyberg/yesod-js
 snoyberg/yesod-pure
 snoyberg/yesodwiki
@@ -1258,7 +1242,6 @@ thayerwilliams/msi-xmonad
 thiagoarrais/hdbc-oracle
 thlorenz/WebToInk
 thomasbrus/imperia
-thomasf/dotfiles-thomasf-xmonad
 thoughtpolice/strict-ghc-plugin
 tibbe/benchpress
 tibbe/cassava
@@ -1353,7 +1336,6 @@ vincenthz/hs-fileformat
 vincenthz/hs-libgit
 vincenthz/hs-securemem
 vincenthz/hs-tls
-vincenthz/hs-tls-extra
 vincenthz/language-java
 visi-lang/visi
 vito/atomo
