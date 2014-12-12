@@ -1,0 +1,6 @@
+#!/bin/bash
+while read a;
+do
+  rm "$a"
+  echo $a
+done

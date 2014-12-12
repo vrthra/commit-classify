@@ -1,0 +1,7 @@
+#!/bin/bash
+
+for i in $(< meta/repos.lst)
+do
+  echo git clone ssh://munin.eecs.oregonstate.edu/scratch/db/github/$i projects/$i
+done
+
