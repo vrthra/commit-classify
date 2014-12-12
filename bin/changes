@@ -1,0 +1,58 @@
+#!/scratch/gopinath/usr/bin/ruby
+
+# Iterate thorugh each file in the current repository.
+# Then, for each file, do a git log, get the commits, and fetch the changes as
+# far back as possible.
+#
+def x(v)
+  #puts v
+  %x[#{v}]
+end
+i = 0
+File.readlines('meta/repos.lst').sort_by{|x| x.downcase }.each do |pkg|
+  pkg.chomp!
+  next if pkg =~ /^#/
+  next if File.directory?("changes/"+pkg)
+  %x[mkdir -p changes/#{pkg}]
+  puts Time.now
+  mylog = {}
+  pkg.strip!
+  pkgpath = "projects/#{pkg}"
+  puts ">" + pkgpath
+  Dir.chdir(pkgpath) do
+    files = Dir.glob('**/*.c')
+    files.each do |file|
+      commits = x(%[git log --pretty=format:'%h' #{file}]).split().map(&:strip)
+      mylog[file.strip] = []
+      commits.each do |c|
+        mylog[file.strip] << {:sha => c, :patch => x(%[git show -p #{c} #{file}]), :file => x(%[git show #{c}:#{file}])}
+      end
+    end
+  end
+  mylog.each do |k,v|
+    #puts "changes/#{pkg}/#{k}"
+    %x[mkdir -p "changes/#{pkg}/#{k}"]
+    i = 0
+    v.each do |a|
+      i += 1
+      y = "changes/#{pkg}/#{k}"
+      x = "#{y}/#{i}"
+      File.open("#{x}.sha", 'w') do |f|
+        f.write a[:sha]
+      end
+      File.open("#{x}.patch", 'w') do |f|
+        f.write a[:patch]
+      end
+      File.open("#{x}.file", 'w') do |f|
+        f.write a[:file]
+      end
+      puts "#{x}.c"
+      %x[cat #{x}.file |./bin/stripcomments | ./bin/joinlines | ./bin/stringlit | astyle -xe -A2 -s2 -p -P -j -c --mode=c -I > #{x}.c]
+      if i > 1
+        File.open("#{y}/#{i-1}.diff", 'w') do |f|
+          f.write x(%[diff -B -d --ignore-all-space -b #{y}/#{i}.c #{y}/#{i-1}.c])
+        end
+      end
+    end
+  end
+end

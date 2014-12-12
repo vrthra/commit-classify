@@ -1,0 +1,7 @@
+#!/bin/bash
+
+for i in $(< meta/repos.lst)
+do
+  git clone ssh://babylon01/scratch/gopinath/db/c/projects/$i projects/$i
+done
+

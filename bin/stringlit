@@ -1,0 +1,14 @@
+#!/usr/bin/ruby
+require 'digest/md5'
+require 'md5'
+STDIN.readlines.each do |l|
+  l.chomp!
+  l.gsub!(/\/\//,'')
+  l.gsub!(/\/\//,'')
+  l.gsub!(/\/\//,'')
+  l.gsub!(/\/\//,'')
+  l.gsub!(/\/\//,'')
+  l.gsub!(/[\\]"/,'')
+  puts l.gsub(/"[^"]+"/) {|m| "\"#{Digest::MD5.hexdigest(m)}\"" }
+end
+

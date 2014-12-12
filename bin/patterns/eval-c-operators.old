@@ -1,0 +1,245 @@
+#!/usr/bin/env ruby
+
+$g = {}
+$g.default = 0
+
+def identify_type(str)
+  case str.strip.gsub(/,$/,'').gsub(/\(/,'').gsub(/\)/,'').gsub(/\[/,'').gsub(/\]/,'').gsub(/\{/,'').gsub(/\}/,'')
+  when /^!.*$/
+    return :logical_negation
+  when /^[a-zA-Z][a-zA-Z0-9._]*$/
+    return :function
+  when /^".*"$/
+    return :string
+  when /^[0-9Ee.-]+$/
+    return :numeric
+  when /^(true|false)$/
+    return :bool
+  when /^[<>+*%\/-]+$/
+    return :std_op
+  when /^null$/
+    return :null
+  when /^ *$/
+    return :empty
+  else
+    return :unknown
+  end
+end
+
+def clean(v)
+  return v.gsub(/ /,'').gsub(/\(/,'').gsub(/\)/,'').gsub(/"/,'')
+end
+
+# binary: + - * / %
+# unary : + -
+# shortcut ++ --
+# AORB : replace binary arith ops with other binary arith ops
+# AORU : replace unary arith
+# AORS : replace shortcut arith with other unary ops
+# AOIU : Insert basic unary arithmetic operators
+# AOIS : Insert shortcut arithmetic operators
+# AODU : Delete basic unary arithmetic
+# AODS : delete shortcut arith
+#
+# relational: > > < <= == !=
+# ROR: replace relational,
+#   replace predicate with true/false
+#
+# conditional: && || & | ^
+#       unary: !
+# COR: replace binary conditional ops
+# COI: Insert unary conditional operator
+# COD : Delete unary conditional
+#
+# shift: >> << >>>>
+# SOR: replace shift ops
+#
+# logical: & | | ^
+#   unary: ~
+# LOC: replace binary logical
+# LOI: insert unary logical operator
+# LOD: Delete unary logical operator
+#
+# assignment: += -= *= /= %= &= |= ^= <<= >>= >>>=
+# ASR: replace shortcut assignment operators with others
+#
+# OO
+# Encapsulation:
+# AMC: Access modifier change
+#
+# Inheritance:
+# IHD: Hiding var delete
+# IHI: Hiding var insert
+# IOD: Overriding method deletion
+# IOP: overriding method calling position change
+# IOR: Overriding method rename
+# ISI: super keyword insertion
+# ISD: super deletion
+# IPC: explicit call to parent constructor
+#
+# Polymorphism:
+# PNC: New method call with child class type
+# PMD: Membeer var declaration with parent class type
+# PPD: Parameter variable declaration with child class type
+# PCI: Type cast operator insertion
+# PCC: Cast type change
+# PCD: Type cast operator deletion
+# PRV: Refernce assignment with other comparable variable
+# OMR: Overloading method contents replace
+# OMD: Overloading method deletion
+# OAC: Arguments of overloading method call change.
+#
+# Java specific:
+# JTI: insert this
+# JTD: delete this keyword
+# JSI: static modifier insertion
+# JSD: static modifier deletion
+# JID: member variable initializatin deletion
+# JDC: Java support default constructor creation
+# EOA: Reference assignment and content assignment replacement
+# EAM: Accessor method change
+# EMM: Modifier method change
+
+
+# For now, we only look at changes where either the originating or the ending
+# changes were one single word. (competant programmer/first order changes)
+
+def id_operator(v)
+  case v
+  when /^(\+|-|\*|\/|%)$/
+    return :a
+  when /^(\||&|^)$/
+    return :b
+  when /^(\|\||&&)$/
+    return :l
+  when /^(<<|>>)$/
+    return :s
+  when /^(<|>|<=|>=|==|!=)$/
+    return :r
+  end
+  case v
+  when /^(\+|-|\*|\/|%)=$/
+    return :a
+  when /^(\||&|^)=$/
+    return :b
+  when /^=$/
+    return :e
+  when /^(<<|>>)=$/
+    return :s
+  end
+  case v
+  when /^(\+\+)/
+    return :P
+  when /^(--)/
+    return :M
+  when /(\+\+)$/
+    return :p
+  when /(--)$/
+    return :m
+  end
+  case v
+  when /!/
+    return :n
+  when /~/
+    return :t
+  end
+  return :_
+end
+
+
+def check_ocor(v1, v2)
+  i1 = id_operator(v1)
+  i2 = id_operator(v2)
+  if i1 != :_ and i2 != :_
+    e = nil
+    if v1 =~ /=$/ or v2 =~ /=$/
+      e = "a"
+    else
+      e = "n"
+    end
+    key = "o#{i1}#{i2}#{e}"
+    case key
+    when /^(oaaa|oaan|obba|obbn|olln|orrn|ossa|ossn)$/
+      $g['Ocor:' +key] += 1
+    when/^(oaba|oaea|oabn|oaln|oarn|oasa|oasn|obaa|oban|obea|obln|obrn|obsa|obsn|oeaa|oeba|oesa|olan|olbn|olrn|olsn|oran|orbn|orln|orsn|osaa|osan|osba|osbn|osea|osln|osrn)$/
+      $g['Oior:' +key] += 1
+    when /^(o[pPmM][pPmM]o)$/
+      $g['Oido:' +key] += 1
+    when /^on.*$/
+      $g['olng: '] += 1
+    when /o.*n./
+      $g['olng: '] += 1
+    when /^ot.*$/
+      $g['obng: '] += 1
+    when /o.*t./
+      $g['obng: '] += 1
+    end
+    return true
+  else
+    return false
+  end
+end
+
+def check_replace_const(v1, v2)
+  i1 = identify_type(v1)
+  i2 = identify_type(v2)
+  c = [:string,:numeric,:bool]
+  if c.include?(i1) or c.include?(i2)
+      $g['replace:const'] += 1
+    return true
+  end
+  return false
+end
+
+
+
+def process_replacement(filename, v1, v2)
+  $g[:total] += 1
+  return if check_ocor(v1,v2)
+  return if check_replace_const(v1,v2)
+  #puts "#{v1}\t\t\t<>\t\t\t#{v2}"
+  $g[:unclassified] += 1
+end
+
+def process_add_line(filename,l)
+end
+def process_rem_line(filename,l)
+end
+def process_change_line(filename,l)
+    case l
+    when /(.*)\t<>\t(.*)/
+      v1 = $1.strip
+      v2 = $2.strip
+      if clean(v1) == clean(v2)
+        return
+      end
+      process_replacement(filename, v1, v2)
+    end
+end
+
+def process_file(filename)
+  lines = File.readlines(filename)
+  lines.each do |l|
+    l.chomp!
+    case l
+    when
+      /^@/
+        process_change_line(filename, l[2..-1])
+    when
+      /^\+/
+        process_add_line(filename, l[2..-1])
+    when
+      /^-/
+        process_rem_line(filename, l[2..-1])
+    else
+    end
+  end
+end
+
+STDIN.each do |l|
+  process_file(l.chomp)
+end
+
+$g.each do |k,v|
+  puts "#{k} = #{v}"
+end

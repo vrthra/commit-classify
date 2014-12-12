@@ -1,0 +1,20 @@
+#!/usr/bin/python
+import sys
+import re
+def comment_remover(text):
+    def replacer(match):
+        s = match.group(0)
+        if s.startswith('/'):
+            return ""
+        else:
+            return s
+    pattern = re.compile(
+        r'//.*?$|/\*.*?\*/|\'(?:\\.|[^\\\'])*\'|"(?:\\.|[^\\"])*"',
+        re.DOTALL | re.MULTILINE
+    )
+    return re.sub(pattern, replacer, text)
+
+
+
+if __name__ == "__main__":
+  print comment_remover('\n'.join(sys.stdin.readlines()))

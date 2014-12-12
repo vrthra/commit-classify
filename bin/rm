@@ -1,0 +1,7 @@
+#!/bin/bash
+while read a; do
+  rm "$a"
+  case $1 in
+    -v) echo $a
+  esac
+done
